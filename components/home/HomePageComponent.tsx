@@ -2,7 +2,8 @@ import React from 'react';
 
 import {
     SafeAreaView, View, ScrollView,
-    Text, TouchableOpacity, Button
+    Text, TouchableOpacity, Button,
+    Linking
 } from 'react-native';
 import constColor from '../../constants/Colors';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -91,7 +92,7 @@ class HomePageComponent extends React.Component< MyProps, MyStates > {
                             <Text style={{...styles.iconLabel, paddingRight: 0}}>Kết quả CLS</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.iconGroup}>
+                        <TouchableOpacity style={styles.iconGroup} onPress={ ()=>{ Linking.openURL('http://10.16.0.20/khangsinh')}}>
                             <Icon5 name="book-medical" size={100} color={constColor.iconColor}/>
                             <Text style={{...styles.iconLabel, paddingRight: 0}}>Tra cứu kháng sinh</Text>
                         </TouchableOpacity>

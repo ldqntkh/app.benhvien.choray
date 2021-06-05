@@ -8,46 +8,35 @@ import styles from './Info.style';
 
 
 interface MyProps {
-    navigation: any
+    navigation: any,
+    userData: any
 }
 
 interface MyStates {
-    userData: {
-        fullname: string,
-        maBenhNhan: string,
-        soNhapVien: string,
-        soBHYT: string,
-        sex: string,
-        phone: string,
-        birthdayYear: number,
-        age: number,
-        personType: string
-    }
+    // userData: {
+    //     fullname: string,
+    //     maBenhNhan: string,
+    //     soNhapVien: string,
+    //     soBHYT: string,
+    //     sex: string,
+    //     phone: string,
+    //     birthdayYear: number,
+    //     age: number,
+    //     personType: string
+    // }
 }
 
 class ThongTinBenhNhanComponent extends React.Component< MyProps, MyStates > {
 
     constructor(props : MyProps) {
         super(props);
-        this.state = {
-            userData: {
-                fullname: "Nguyễn Thị B",
-                maBenhNhan: '20802218',
-                soNhapVien: '20802218',
-                soBHYT: '20802218',
-                sex: 'Nữ',
-                phone: '0392891227',
-                birthdayYear: 1950,
-                age: 60,
-                personType: 'Viện phí'
-            }
-        }
     } 
 
     render() {
         let {
             userData
-        } = this.state;
+        } = this.props;
+        
         return(
             <SafeAreaView style={styles.container}>
                 <View>
@@ -57,39 +46,39 @@ class ThongTinBenhNhanComponent extends React.Component< MyProps, MyStates > {
                     <ScrollView style={styles.scrollview}>
                         <View style={styles.lineItem}>
                             <Text>Tên bệnh nhân</Text>
-                            <Text style={{color: 'green'}}>{userData.fullname}</Text>
+                            <Text style={{color: 'green'}}>{userData.TENBENHNHAN}</Text>
                         </View>
                         <View style={styles.lineItem}>
                             <Text>Mã bệnh nhân</Text>
-                            <Text>{userData.maBenhNhan}</Text>
+                            <Text>{userData.MABENHNHAN}</Text>
                         </View>
                         <View style={styles.lineItem}>
                             <Text>Số nhập viện</Text>
-                            <Text>{userData.soNhapVien}</Text>
+                            <Text>{userData.SONHAPVIEN}</Text>
                         </View>
-                        <View style={{...styles.lineItem, marginBottom: 20}}>
+                        <View style={{...styles.lineItem, marginBottom: 7}}>
                             <Text>Số BHYT</Text>
-                            <Text>{userData.soBHYT}</Text>
+                            <Text>{userData.SOTHEBHYT}</Text>
                         </View>
                         <View style={styles.lineItem}>
                             <Text>Giới tính</Text>
-                            <Text>{userData.sex}</Text>
+                            <Text>{userData.GIOITINH}</Text>
                         </View>
                         <View style={styles.lineItem}>
                             <Text>Số điện thoại</Text>
-                            <Text>{userData.phone}</Text>
+                            <Text>{userData.DIENTHOAI}</Text>
                         </View>
                         <View style={styles.lineItem}>
                             <Text>Năm sinh</Text>
-                            <Text>{userData.birthdayYear}</Text>
+                            <Text>{userData.NAMSINH}</Text>
                         </View>
                         <View style={styles.lineItem}>
                             <Text>Tuổi</Text>
-                            <Text>{userData.age}</Text>
+                            <Text>{userData.TUOI}</Text>
                         </View>
                         <View style={styles.lineItem}>
                             <Text>Đối tượng</Text>
-                            <Text>{userData.personType}</Text>
+                            <Text>{userData.DOITUONG}</Text>
                         </View>
                     </ScrollView>
                 </View>

@@ -235,7 +235,12 @@ class LoginComponent extends React.Component<MyProps, MyStates> {
                     password,
                     userid: resLogin.data.USERID,
                     fullname: resLogin.data.TENNHANVIEN,
-                    user_idx: resLogin.data.NHANVIEN_IDX
+                    user_idx: resLogin.data.NHANVIEN_IDX,
+                    sex: resLogin.data.GIOITINH,
+                    dienthoai: resLogin.data.DIENTHOAI,
+                    ngaysinh: resLogin.data.NGAYSINH,
+                    email: resLogin.data.EMAIL,
+                    diachi: resLogin.data.DIACHI
                 }
                 this.props.SetUserdata(objUser);
                 this.props.navigation.navigate( 'phongKhoaNavigation' );

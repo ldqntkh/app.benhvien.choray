@@ -106,15 +106,17 @@ class SettingComponent extends React.Component< MyProps, MyStates > {
         }
 
         // set user data
+        let UserReducer = this.props.UserReducer;
         let userData = {
-            username: this.props.UserReducer.username,
-            fullname: this.props.UserReducer.fullname,
-            sex: 'Nam',
-            phone: '0123456789',
-            birthday: '30/01/2021',
-            email: 'sontm@mail.com',
+            username: UserReducer.username,
+            fullname: UserReducer.fullname,
+            sex: UserReducer.sex,
+            phone: UserReducer.dienthoai,
+            birthday: UserReducer.ngaysinh,
+            email: UserReducer.email,
             // khoa: 'Nội tổng hợp'
         }
+        
         this.setState({
             userData,
             hostname: this.props.SettingReducer.hostname

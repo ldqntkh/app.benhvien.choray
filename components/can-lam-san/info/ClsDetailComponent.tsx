@@ -3,12 +3,12 @@ import { ActivityIndicator, Alert, Dimensions, SafeAreaView, View, Text } from '
 import { TabView, SceneMap } from 'react-native-tab-view';
 import styles from './Info.style';
 import KetQuaClsComponent from './KetQuaClsComponent';
-import ThongTinBenhNhanComponent from './ThongTinBenhNhanComponent';
+import ThongTinBenhNhanComponent from '../../thong-tin-benh-nhan/ThongTinBenhNhanComponent';
 import { connect } from 'react-redux';
 
 import Axios from 'axios';
 import {
-    API_THUCHIENYLENH
+    API_DANHSACH_CLS
 } from '../../../constants/Variable';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
@@ -22,7 +22,9 @@ interface MyState {
     routes: any,
     soNhapVien: string,
     fetching: boolean,
-    hasError: boolean
+    hasError: boolean,
+    ketQuaCls: Array<Object>,
+    userObject: Object
 }
 
 class ClsDetailComponent extends React.Component< MyProps, MyState > {
@@ -36,7 +38,9 @@ class ClsDetailComponent extends React.Component< MyProps, MyState > {
             ],
             soNhapVien: '',
             fetching : false,
-            hasError : false
+            hasError : false,
+            ketQuaCls : [],
+            userObject: {}
         }
     }
 
@@ -48,15 +52,15 @@ class ClsDetailComponent extends React.Component< MyProps, MyState > {
             return false;
         }
 
-        await this._getThongtinYLenh(snv);
+        await this._getThongtinCLS(snv);
     }
 
-    _getThongtinYLenh = async(SoBenhAn : string)=> {
+    _getThongtinCLS = async(SoBenhAn : string)=> {
         if(this.state.fetching) return;
         this.setState({
             fetching: true
         });
-        let url_encode = this.props.SettingReducer.hostname + API_THUCHIENYLENH;
+        let url_encode = this.props.SettingReducer.hostname + API_DANHSACH_CLS;
         try {
             let {
                 username, password
@@ -73,6 +77,13 @@ class ClsDetailComponent extends React.Component< MyProps, MyState > {
                 }
             });
             
+            if( res.data && res.data.Data.length > 0 ) {
+                let item = res.data.Data[0];
+                this.setState({
+                    ketQuaCls: res.data.Data,
+                    userObject: item
+                });
+            }
         } catch(err) {
             Alert.alert('Thông báo', "Không thể tải được thông tin bệnh án. Vui lòng thử lại!");
             // this.props.navigation.navigate('thucHienYLenhPageNavigation')
@@ -92,13 +103,13 @@ class ClsDetailComponent extends React.Component< MyProps, MyState > {
     render() {
         
         let {
-            index, routes, fetching, hasError
+            index, routes, fetching, hasError, ketQuaCls, userObject
         } = this.state;
         let screens = SceneMap({});
         if( !fetching ) {
             screens = SceneMap({
-                first: ()=> <ThongTinBenhNhanComponent {...this.props} />,
-                second: ()=> <KetQuaClsComponent {...this.props} />,
+                first: ()=> <ThongTinBenhNhanComponent {...this.props} userData={userObject}/>,
+                second: ()=> <KetQuaClsComponent {...this.props} ketQuaCls={ketQuaCls}/>,
             })
         }
         return (

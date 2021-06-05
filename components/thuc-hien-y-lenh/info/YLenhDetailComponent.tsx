@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { ActivityIndicator, Alert, Dimensions, SafeAreaView, View, Text } from 'react-native';
 import { TabView, SceneMap } from 'react-native-tab-view';
-import styles from './Info.style';
+import styles from '../../thong-tin-benh-nhan/Info.style';
 import YLenhChuaThucHienComponent from './YLenhChuaThucHienComponent';
-import ThongTinBenhNhanComponent from './ThongTinBenhNhanComponent';
+import ThongTinBenhNhanComponent from '../../thong-tin-benh-nhan/ThongTinBenhNhanComponent';
 import { connect } from 'react-redux';
 
 import Axios from 'axios';
@@ -22,7 +22,8 @@ interface MyState {
     routes: any,
     soNhapVien: string,
     fetching: boolean,
-    hasError: boolean
+    hasError: boolean,
+    userObject: Object
 }
 
 class YLenhDetailComponent extends React.Component< MyProps, MyState > {
@@ -36,7 +37,8 @@ class YLenhDetailComponent extends React.Component< MyProps, MyState > {
             ],
             soNhapVien: '',
             fetching : false,
-            hasError : false
+            hasError : false,
+            userObject: {}
         }
     }
 
@@ -70,7 +72,8 @@ class YLenhDetailComponent extends React.Component< MyProps, MyState > {
                 "UserName": username,
                 "Password":password,
                 "DataSign":"", 
-                "SoBenhAn":SoBenhAn
+                "SoBenhAn":SoBenhAn,
+                "DaThucHien": 0
             }; 
             let res = await Axios.post(url_encode, JSON.stringify( dataPost ), {
                 headers: { 
@@ -78,10 +81,18 @@ class YLenhDetailComponent extends React.Component< MyProps, MyState > {
                 }
             });
             
+            if( res.data && res.data.Data.length > 0 ) {
+                let item = res.data.Data[0];
+                this.setState({
+                    userObject: item
+                });
+            }
+            
         } catch(err) {
             Alert.alert('Thông báo', "Không thể tải được thông tin bệnh án. Vui lòng thử lại!");
             // this.props.navigation.navigate('thucHienYLenhPageNavigation')
             // return false;
+            console.log(err.message)
             this.setState({
                 hasError: true
             });
@@ -97,12 +108,12 @@ class YLenhDetailComponent extends React.Component< MyProps, MyState > {
     render() {
         
         let {
-            index, routes, fetching, hasError
+            index, routes, fetching, hasError, userObject
         } = this.state;
         let screens = SceneMap({});
         if( !fetching ) {
             screens = SceneMap({
-                first: ()=> <ThongTinBenhNhanComponent {...this.props} />,
+                first: ()=> <ThongTinBenhNhanComponent {...this.props} userData={userObject} />,
                 second: ()=> <YLenhChuaThucHienComponent {...this.props} />,
             })
         }

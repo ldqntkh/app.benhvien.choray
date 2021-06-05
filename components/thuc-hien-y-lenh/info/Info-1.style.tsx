@@ -24,7 +24,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'flex-start',
-        alignItems: 'flex-start'
+        alignItems: 'flex-start',
+        zIndex: 20
     },
     col_2: {
         width: col2,
@@ -49,13 +50,15 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
         marginLeft: 10,
         marginRight: 10,
+        zIndex: 10
     },
     sampleItem: {
         // backgroundColor: 'red',
         position: 'relative',
         width: width - 20,
         // height: 200,
-        marginBottom: 30
+        marginBottom: 30,
+        zIndex: 10
     },
     boxSub: {
         width: 10,
