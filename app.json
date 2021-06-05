@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "Theo dõi bệnh án",
+    "slug": "APP_BV_DHYD",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "myapp",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "bundleIdentifier": "com.app.dhyd",
+      "infoPlist":{  
+        "NSFaceIDUsageDescription": "Ứng dụng cần quyền truy cập FaceID để thực hiện đăng nhập. Vui lòng cho phép sử dụng tính năng này!",
+        "NSCameraUsageDescription":"Ứng dụng cần quyền truy cập máy ảnh để quét Barcode bệnh án. Vui lòng cho phép sử dụng tính năng này!",
+        "CAMERA":"Ứng dụng cần quyền truy cập máy ảnh để quét Barcode bệnh án. Vui lòng cho phép sử dụng tính năng này!"
+      },
+      "supportsTablet": true
+    },
+    "android": {
+      "permissions":["CAMERA"],
+      "package": "com.app.bvdhyd",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    "web": {
+      "favicon": "./assets/images/favicon.png"
+    }
+  }
+}
