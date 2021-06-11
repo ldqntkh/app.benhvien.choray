@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 
 import Axios from 'axios';
 import {
-    API_THUCHIENYLENH
+    API_DSTHUCHIENYLENH
 } from '../../../constants/Variable';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
@@ -23,7 +23,8 @@ interface MyState {
     soNhapVien: string,
     fetching: boolean,
     hasError: boolean,
-    userObject: Object
+    userObject: Object,
+    yLenhs : Array<Object>
 }
 
 class BenhPhamComponent extends React.Component< MyProps, MyState > {
@@ -38,7 +39,8 @@ class BenhPhamComponent extends React.Component< MyProps, MyState > {
             soNhapVien: '',
             fetching : false,
             hasError : false,
-            userObject: {}
+            userObject: {},
+            yLenhs: []
         }
     }
 
@@ -63,14 +65,11 @@ class BenhPhamComponent extends React.Component< MyProps, MyState > {
         this.setState({
             fetching: true
         });
-        let url_encode = this.props.SettingReducer.hostname + API_THUCHIENYLENH;
+        let url_encode = this.props.SettingReducer.hostname + API_DSTHUCHIENYLENH;
         try {
-            let {
-                username, password
-            } = this.props.UserReducer;
             let dataPost = {
-                "UserName": username,
-                "Password":password,
+                "UserName":"tichhop",
+                "Password":"123456@a",
                 "DataSign":"", 
                 "SoBenhAn":SoBenhAn,
                 "DaThucHien": 1
@@ -81,10 +80,16 @@ class BenhPhamComponent extends React.Component< MyProps, MyState > {
                 }
             });
 
-            if( res.data && res.data.Data.length > 0 ) {
+            if( res.data && res.data.Data && res.data.Data.length > 0 ) {
                 let item = res.data.Data[0];
                 this.setState({
-                    userObject: item
+                    userObject: item,
+                    yLenhs: res.data.Data
+                });
+            } else {
+                Alert.alert('Thông báo', "Không tồn tại mẫu bệnh phẩm của số bệnh án này. Vui lòng thử lại!");
+                this.setState({
+                    hasError: true
                 });
             }
             
@@ -107,13 +112,15 @@ class BenhPhamComponent extends React.Component< MyProps, MyState > {
     render() {
         
         let {
-            index, routes, fetching, hasError, userObject
+            index, routes, fetching, hasError, userObject, yLenhs
         } = this.state;
         let screens = SceneMap({});
         if( !fetching ) {
             screens = SceneMap({
                 first: ()=> <ThongTinBenhNhanComponent {...this.props} userData={userObject}/>,
-                second: ()=> <BenhPhamDetailComponent {...this.props} />,
+                second: ()=> <BenhPhamDetailComponent {...this.props} userData={userObject} yLenhs={yLenhs} 
+                    _getThongtinBenhPham={this._getThongtinBenhPham}
+                    soNhapVien={this.props.navigation.state.params.soNhapVien} />,
             })
         }
         return (

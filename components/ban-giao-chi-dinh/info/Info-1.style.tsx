@@ -1,6 +1,5 @@
 import React from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
-import constColor from '../../../constants/Colors';
 let {
     width, height
 } = Dimensions.get('window');
@@ -15,7 +14,8 @@ const styles = StyleSheet.create({
         flex: 1
     },
     scrollview: {
-        width: width
+        width: width,
+        height: height - 60
     },
     groupInput: {
         width: width,
@@ -24,7 +24,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'flex-start',
-        alignItems: 'flex-start'
+        alignItems: 'flex-start',
+        zIndex: 20
     },
     col_2: {
         width: col2,
@@ -49,13 +50,15 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
         marginLeft: 10,
         marginRight: 10,
+        zIndex: 10
     },
     sampleItem: {
         // backgroundColor: 'red',
         position: 'relative',
         width: width - 20,
         // height: 200,
-        marginBottom: 30
+        marginBottom: 30,
+        zIndex: 10
     },
     boxSub: {
         width: 10,
@@ -97,14 +100,14 @@ const styles = StyleSheet.create({
         marginBottom: 0,
         padding: 1,
         marginLeft: 5,
-        width: width - 40
+        width: width - 80
     },
     sub_sample: {
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        marginLeft: 5
+        marginLeft: 5,
     },
     vLine: {
         // position: 'absolute',

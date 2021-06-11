@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Axios from 'axios';
 import { connect } from 'react-redux';
-import { ActivityIndicator, Alert, TextInput } from 'react-native';
+import { ActivityIndicator, Alert, TextInput, Platform } from 'react-native';
 import {
     View, Text,
     TouchableOpacity
@@ -52,14 +52,14 @@ class PhongKhoaComponent extends React.Component<MyProps, MyStates> {
             fetching: true
         });
         let {
-            username, password
+            username
         } = this.props.UserReducer;
         try {
             let data = {
-                "UserName": username,
-                "Password":password,
+                "UserName":"tichhop",
+                "Password":"123456@a",
                 "DataSign":"", 
-                "TenDangNhap":"FPTCR"
+                "TenDangNhap":username
             }
             let url = this.props.SettingReducer.hostname + API_PHONGBAN;
             let res = await Axios.post( url, JSON.stringify(data), {
@@ -147,11 +147,14 @@ class PhongKhoaComponent extends React.Component<MyProps, MyStates> {
                         <>
                             <View style={styles.inputGroup}>
                                 <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Vui lòng chọn khoa làm việc</Text>
-                                <View style={styles.inputGroup}>
-                                    <View style={styles.inputBox}>
-                                        <TextInput placeholder="Nhập tên phòng khoa để tìm nhanh" autoCapitalize={"none"} style={styles.input} value={search_text} onChangeText={(value: string) => this.setState({ search_text : value }) } ></TextInput>
+                                {
+                                    Platform.OS == 'ios' &&
+                                    <View style={styles.inputGroup}>
+                                        <View style={styles.inputBox}>
+                                            <TextInput placeholder="Nhập tên phòng khoa để tìm nhanh" autoCapitalize={"none"} style={styles.input} value={search_text} onChangeText={(value: string) => this.setState({ search_text : value }) } ></TextInput>
+                                        </View>
                                     </View>
-                                </View>
+                                }
                                 <Picker
                                     style={styles.inputSelect}
                                     selectedValue={phongkhoa}

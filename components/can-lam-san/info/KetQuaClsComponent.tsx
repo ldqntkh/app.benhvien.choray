@@ -104,7 +104,7 @@ class KetQuaClsComponent extends React.Component< MyProps, MyStates > {
                                         <View style={styles.borderLabel}>
                                             <Text style={{ color: 'blue' }}>{item.PHONGBANTHUCHIEN}</Text>
                                         </View>
-                                        <Text style={{ color: 'blue' }}>{item.NGAYTHUCHIEN}</Text>
+                                        <Text numberOfLines={1} style={{ color: 'blue', width: 160, overflow: 'hidden' }}>{item.NGAYTHUCHIEN}</Text>
                                     </View>
                                 </View>
                             )

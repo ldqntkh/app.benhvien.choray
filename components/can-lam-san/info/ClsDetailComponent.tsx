@@ -62,12 +62,9 @@ class ClsDetailComponent extends React.Component< MyProps, MyState > {
         });
         let url_encode = this.props.SettingReducer.hostname + API_DANHSACH_CLS;
         try {
-            let {
-                username, password
-            } = this.props.UserReducer;
             let dataPost = {
-                "UserName": username,
-                "Password":password,
+                "UserName":"tichhop",
+                "Password":"123456@a",
                 "DataSign":"", 
                 "SoBenhAn":SoBenhAn
             }; 

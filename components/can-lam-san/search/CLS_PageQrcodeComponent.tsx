@@ -1,7 +1,7 @@
 import React from 'react';
 import {
     SafeAreaView, View,
-    Alert
+    Alert, Platform
 } from 'react-native';
 
 import { BarCodeScanner } from 'expo-barcode-scanner';
@@ -44,7 +44,6 @@ class CLS_PageQrCodeComponent extends React.Component< MyProps, MyStates > {
                   {
                     text: 'Ok',
                     onPress: async () =>{
-                        console.log(resolve)
                         await this._requestCameraPermission()
                     },
                   },
@@ -110,20 +109,32 @@ class CLS_PageQrCodeComponent extends React.Component< MyProps, MyStates > {
     }
 
     render() {
+        let {
+            hasCameraPermission
+        } = this.state;
         return(
             <SafeAreaView style={styles.container}>
                 <View style={styles.barcodeControl}>
-                    <BarCodeScanner
-                            onBarCodeScanned={this._handleBarCodeRead}
-                            // onBarCodeRead={this._handleBarCodeRead}
-                            style={styles.rectBarcode} />
-                    <View style={styles.realBarcode}>
-                        <View style={styles.realBarcode_1}></View>
-                        <View style={styles.realBarcode_2}></View>
-                        <View style={styles.realBarcode_3}></View>
-                        <View style={styles.realBarcode_4}></View>
-                        <View style={styles.realBarcode_5}></View>
-                    </View>
+                    {
+                        hasCameraPermission && 
+                        <>
+                            <BarCodeScanner
+                                onBarCodeScanned={this._handleBarCodeRead}
+                                // onBarCodeRead={this._handleBarCodeRead}
+                                style={Platform.OS == 'ios' ? styles.rectBarcode : [{...styles.rectBarcode},{ height: 500 }]} />
+                            {
+                                Platform.OS == 'ios' &&
+                                <View style={styles.realBarcode}>
+                                    <View style={styles.realBarcode_1}></View>
+                                    <View style={styles.realBarcode_2}></View>
+                                    <View style={styles.realBarcode_3}></View>
+                                    <View style={styles.realBarcode_4}></View>
+                                    <View style={styles.realBarcode_5}></View>
+                                </View>
+                            }
+                        </>
+                    }
+                    
                 </View>
             </SafeAreaView>
         )

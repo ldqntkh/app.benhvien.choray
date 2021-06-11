@@ -1,14 +1,19 @@
 import React from 'react';
 import {
-    SafeAreaView, ScrollView, View, Text, Dimensions, Platform, TouchableOpacity
+    SafeAreaView, ScrollView, View, Text, Dimensions, Platform, TouchableOpacity, Alert, ActivityIndicator
 } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { CheckBox } from 'react-native-elements';
-
+import {
+    API_THUCHIENYLENH,
+    API_DANHSACH_BENHPHAM
+} from '../../../constants/Variable';
 import styles from './Info-1.style';
-
+import { connect } from 'react-redux';
 import Modal from 'react-native-modal';
+import Axios from 'axios';
+
 let {
     width
 } = Dimensions.get('window');
@@ -18,26 +23,36 @@ if( col2 < 180 ) {
 }
 
 interface MyProps {
-    navigation: any
+    navigation: any,
+    yLenhs: Array<Object>,
+    userData: any,
+    UserReducer: any,
+    SettingReducer: any,
+    _getThongtinYLenh: any,
+    soNhapVien: any
 }
 
 interface MyStates {
     doTimeAt: Date,
+    sample_all: any,
     sample: any,
     notes: string,
     sampleDatas: any,
     showModalConfirm: boolean,
-    userData: {
-        fullname: string,
-        maBenhNhan: string,
-        soNhapVien: string,
-        soBHYT: string,
-        sex: string,
-        phone: string,
-        birthdayYear: number,
-        age: number,
-        personType: string
-    }
+    fetching: boolean,
+    YeuCau_Ids: Array<any>,
+    BenhPhams: Array<any>
+    // userData: {
+    //     fullname: string,
+    //     maBenhNhan: string,
+    //     soNhapVien: string,
+    //     soBHYT: string,
+    //     sex: string,
+    //     phone: string,
+    //     birthdayYear: number,
+    //     age: number,
+    //     personType: string
+    // }
 }
 
 var TimeOut : any = null;
@@ -49,123 +64,172 @@ class YLenhChuaThucHienComponent extends React.Component< MyProps, MyStates > {
         this.state = {
             showModalConfirm: false,
             doTimeAt: new Date(),
-            sample: '-1',
+            sample_all: '0',
+            sample: -1,
             notes: '',
-            sampleDatas: {
-                "mau" : {
-                    ten_mau: "Máu",
-                    bs_chidinh: "Nguyễn Minh C",
-                    timeAt: "10-12-2021 10:20:00",
-                    sample: [
-                        {
-                            ten_mau: "XN.Huyết học",
-                            status: false,
-                            subs: [
-                                { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false },
-                                { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false },
-                                { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false }
-                            ]
-                        },
-                        {
-                            ten_mau: "XN.Sinh hóa",
-                            status: false,
-                            subs: [
-                                { ten_mau: "Định lượng Ure máu", status: false },
-                                { ten_mau: "Định lượng Ure máu", status: false },
-                                { ten_mau: "Định lượng Ure máu", status: false }
-                            ]
-                        }
-                    ]
-                },
-                "nuoc_tieu" : {
-                    ten_mau: "Nước tiểu",
-                    bs_chidinh: "Nguyễn Minh C",
-                    timeAt: "10-12-2021 10:20:00",
-                    sample: [
-                        {
-                            ten_mau: "XN.Huyết học",
-                            status: false,
-                            subs: [
-                                { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false },
-                                { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false },
-                                { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false }
-                            ]
-                        },
-                        {
-                            ten_mau: "XN.Sinh hóa",
-                            status: false,
-                            subs: [
-                                { ten_mau: "Định lượng Ure máu", status: false },
-                                { ten_mau: "Định lượng Ure máu", status: false },
-                                { ten_mau: "Định lượng Ure máu", status: false }
-                            ]
-                        }
-                    ]
-                },
-                "phan" : {
-                    ten_mau: "Phân",
-                    bs_chidinh: "Nguyễn Minh C",
-                    timeAt: "10-12-2021 10:20:00",
-                    sample: [
-                        {
-                            ten_mau: "XN.Huyết học",
-                            status: false,
-                            subs: [
-                                { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false },
-                                { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false },
-                                { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false }
-                            ]
-                        },
-                        {
-                            ten_mau: "XN.Sinh hóa",
-                            status: false,
-                            subs: [
-                                { ten_mau: "Định lượng Ure máu", status: false },
-                                { ten_mau: "Định lượng Ure máu", status: false },
-                                { ten_mau: "Định lượng Ure máu", status: false }
-                            ]
-                        }
-                    ]
-                }
-            },
-            userData: {
-                fullname: "Nguyễn Thị B",
-                maBenhNhan: '20802218',
-                soNhapVien: '20802218',
-                soBHYT: '20802218',
-                sex: 'Nữ',
-                phone: '0392891227',
-                birthdayYear: 1950,
-                age: 60,
-                personType: 'Viện phí'
-            }
+            fetching: false,
+            sampleDatas: [],
+            YeuCau_Ids: [],
+            BenhPhams: []
         }
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         let that = this;
         TimeOut = setInterval(()=> {
             that.setState({ doTimeAt: new Date() })
         }, 1000);
+
+        // lấy danh sach mẫu bênh phẩm
+        await this._getBenhPham();
+        // lọc mẫu bênh phẩm
+        this._filterDataBenhPham();
     }
 
     componentWillUnmount() {
         if( TimeOut !== null ) clearInterval(TimeOut);
     }
 
-    _renderBenhPham = ()=> {
-        let {
-            sample, sampleDatas
-        } = this.state;
-        if( Platform.OS === 'ios' ) {
-            let items = [{label: 'Chọn mẫu bệnh phẩm', value: '-1' }];
-            if( sampleDatas &&  Object.keys(sampleDatas).length > 0 ) {
-                let keys = Object.keys(sampleDatas);
-                for( let i = 0; i < keys.length; i++ ) {
-                    items.push( {label: sampleDatas[keys[i]].ten_mau, value: keys[i] } )
+    _getBenhPham = async()=> {
+        let url_encode = this.props.SettingReducer.hostname + API_DANHSACH_BENHPHAM;
+        try {
+            let dataPost = {
+                "UserName":"tichhop",
+                "Password":"123456@a",
+                "DataSign":"", 
+                "DataGroup":"DM_MAUBENHPHAM"
+            }; 
+            let res = await Axios.post(url_encode, JSON.stringify( dataPost ), {
+                headers: { 
+                    'Content-Type': 'application/json'
                 }
+            });
+            
+            if( res.data && res.data.Data && res.data.Data.length > 0 ) {
+                this.setState({
+                    BenhPhams: res.data.Data
+                });
+            } else {
+                Alert.alert("Thông báo", "Không tồn tại thôn tin bệnh phẩm", 
+                [
+                    {
+                    text: 'Ok',
+                    onPress: async () =>{
+                        return null
+                    },
+                    },
+                ]);
             }
             
+        } catch(err) {
+            Alert.alert("Thông báo", "Không tồn tại thôn tin bệnh phẩm", 
+            [
+                {
+                text: 'Ok',
+                onPress: async () =>{
+                    return null
+                },
+                },
+            ]);
+            console.log(err.message);
+        } finally {
+            this.setState({
+                fetching: false
+            });
+        }
+    }
+
+    _filterDataBenhPham = ()=> {
+        let {
+            yLenhs
+        } = this.props;
+        let {
+            sample_all
+        } = this.state;
+        
+        let rs : any = {};
+        for( let i = 0; i < yLenhs.length; i++ ) {
+            let item : any = yLenhs[i];
+            
+            if( !rs[sample_all] ) {
+                rs[sample_all] = {};
+                
+                let benhpham : any = rs[sample_all];
+                benhpham.BENHPHAM_IDX = sample_all;
+                benhpham.ten_mau = item.TENBENHPHAM;
+                rs[sample_all] = benhpham;
+            }
+
+            let benhpham : any = rs[sample_all];
+            if( benhpham.sample && benhpham.sample.length > 0 ) {
+                let added = false;
+                for( let i = 0; i < benhpham.sample.length; i++ ) {
+                    if( benhpham.sample[i].id_mau == item.MANHOMDICHVU ) {
+                        benhpham.sample[i].subs.push({ 
+                            DICHVU_IDX: item.DICHVU_IDX, 
+                            YEUCAU_IDX: item.YEUCAU_IDX, 
+                            id_mau: item.MADICHVU, 
+                            ten_mau: item.TENDICHVU, 
+                            status: false 
+                        });
+                        added = true;
+                        break;
+                    }
+                }
+                if( !added ) {
+                    let benhPhamItem : any = {};
+                
+                    benhPhamItem.id_mau = item.MANHOMDICHVU;
+                    benhPhamItem.ten_mau = item.TENNHOMDICHVU;
+                    benhPhamItem.status = false;
+                    benhPhamItem.subs = [];
+                    benhPhamItem.subs.push({ 
+                        DICHVU_IDX: item.DICHVU_IDX, 
+                        YEUCAU_IDX: item.YEUCAU_IDX, 
+                        id_mau: item.MADICHVU, 
+                        ten_mau: item.TENDICHVU, 
+                        status: false 
+                    });
+                    benhpham.sample.push(benhPhamItem);
+                }
+            } else {
+                benhpham.sample = [];
+                
+                let benhPhamItem : any = {};
+                
+                benhPhamItem.id_mau = item.MANHOMDICHVU;
+                benhPhamItem.ten_mau = item.TENNHOMDICHVU;
+                benhPhamItem.status = false;
+                benhPhamItem.subs = [];
+                benhPhamItem.subs.push({ 
+                    DICHVU_IDX: item.DICHVU_IDX, 
+                    YEUCAU_IDX: item.YEUCAU_IDX, 
+                    id_mau: item.MADICHVU, 
+                    ten_mau: item.TENDICHVU, 
+                    status: false 
+                });
+                benhpham.sample.push(benhPhamItem);
+            }
+            rs[sample_all] = benhpham;
+        }
+        
+        this.setState({
+            sampleDatas: rs
+        })
+    }
+
+    _renderBenhPham = ()=> {
+        let {
+            BenhPhams, sample
+        } = this.state;
+
+        
+        if( Platform.OS === 'ios' ) {
+            let items = [{label: 'Chọn mẫu bệnh phẩm', value: -1 }];
+            for( let i = 0; i < BenhPhams.length; i++ ) {
+                if( !BenhPhams[i].ENABLED ) continue;
+                items.push( {label: BenhPhams[i].FIELDNAME, value: BenhPhams[i].FIELDCODE } )
+            }
             return (
                 <DropDownPicker
                     items={items}
@@ -182,13 +246,12 @@ class YLenhChuaThucHienComponent extends React.Component< MyProps, MyStates > {
                 />
             )
         } else {
-            let items = [<Picker.Item key={-1} label="Chọn mẫu bệnh phẩm" value="-1" />];
-            if( sampleDatas &&  Object.keys(sampleDatas).length > 0 ) {
-                let keys = Object.keys(sampleDatas);
-                for( let i = 0; i < keys.length; i++ ) {
-                    items.push( <Picker.Item key={keys[i]} label={sampleDatas[keys[i]].ten_mau} value={keys[i]} /> )
-                }
+            let items = [<Picker.Item key={-1} label="Chọn mẫu bệnh phẩm" value={-1} />];
+            for( let i = 0; i < BenhPhams.length; i++ ) {
+                if( !BenhPhams[i].ENABLED ) continue;
+                items.push( <Picker.Item key={BenhPhams[i].FIELDCODE} label={BenhPhams[i].FIELDNAME} value={BenhPhams[i].FIELDCODE} /> )
             }
+            
             return (
                 <Picker
                     style={{ width: col2 }}
@@ -208,40 +271,61 @@ class YLenhChuaThucHienComponent extends React.Component< MyProps, MyStates > {
 
     _handleCheckbox = (event: any, key: string)=> {
         let {
-            sample,
-            sampleDatas
+            sample_all,
+            sampleDatas,
+            YeuCau_Ids
         } = this.state;
 
         key = key.split('sample_')[1];
         let keys = key.split('_');
         
         if( keys.length > 1 ) {
-            let status = sampleDatas[sample].sample[keys[0]].subs[keys[1]].status;
-            sampleDatas[sample].sample[keys[0]].subs[keys[1]].status = !status;
+            let status = sampleDatas[sample_all].sample[keys[0]].subs[keys[1]].status;
+            sampleDatas[sample_all].sample[keys[0]].subs[keys[1]].status = !status;
 
             // check all sub is checked 
-            let total = sampleDatas[sample].sample[keys[0]].subs.length;
+            let total = sampleDatas[sample_all].sample[keys[0]].subs.length;
             let totalCheck = 0;
             for( let i = 0; i < total; i++ ) {
-                if( sampleDatas[sample].sample[keys[0]].subs[i].status ) totalCheck ++;
+                if( sampleDatas[sample_all].sample[keys[0]].subs[i].status ) {
+                    totalCheck ++;
+                    if( YeuCau_Ids.indexOf(sampleDatas[sample_all].sample[keys[0]].subs[i].YEUCAU_IDX) < 0) {
+                        YeuCau_Ids.push( sampleDatas[sample_all].sample[keys[0]].subs[i].YEUCAU_IDX );
+                    }
+                } else {
+                    let index = YeuCau_Ids.indexOf( sampleDatas[sample_all].sample[keys[0]].subs[i].YEUCAU_IDX );
+                    if(index > -1)
+                        YeuCau_Ids.splice(index, 1);
+                }
             }
             if( totalCheck == total ) {
-                sampleDatas[sample].sample[keys[0]].status = true
+                sampleDatas[sample_all].sample[keys[0]].status = true
             } else {
-                sampleDatas[sample].sample[keys[0]].status = false
+                sampleDatas[sample_all].sample[keys[0]].status = false
             }
             this.setState({
-                sampleDatas
+                sampleDatas,
+                YeuCau_Ids
             })
         } else {
-            let status = sampleDatas[sample].sample[keys[0]].status;
-            sampleDatas[sample].sample[keys[0]].status = !status;
+            let status = sampleDatas[sample_all].sample[keys[0]].status;
+            sampleDatas[sample_all].sample[keys[0]].status = !status;
             // set all subs
-            for( let i = 0; i < sampleDatas[sample].sample[keys[0]].subs.length; i++ ) {
-                sampleDatas[sample].sample[keys[0]].subs[i].status = !status;
+            for( let i = 0; i < sampleDatas[sample_all].sample[keys[0]].subs.length; i++ ) {
+                sampleDatas[sample_all].sample[keys[0]].subs[i].status = !status;
+                if( status ) {
+                    let index = YeuCau_Ids.indexOf( sampleDatas[sample_all].sample[keys[0]].subs[i].YEUCAU_IDX );
+                    if(index > -1)
+                        YeuCau_Ids.splice(index, 1);
+                } else {
+                    if( YeuCau_Ids.indexOf(sampleDatas[sample_all].sample[keys[0]].subs[i].YEUCAU_IDX) < 0) {
+                        YeuCau_Ids.push( sampleDatas[sample_all].sample[keys[0]].subs[i].YEUCAU_IDX );
+                    }
+                }
             }
             this.setState({
-                sampleDatas
+                sampleDatas,
+                YeuCau_Ids
             })
         }
         
@@ -249,11 +333,12 @@ class YLenhChuaThucHienComponent extends React.Component< MyProps, MyStates > {
 
     _renderMauBenhPham = ()=> {
         let {
-            sample,
+            sample_all,
             sampleDatas
         } = this.state;
-        if( sample == '' || sample == -1 ) return null;
-        let itemSample = sampleDatas[sample];
+        if( sampleDatas.length == 0 ) return null;
+        // if( sample == '' || sample == -1 ) return null;
+        let itemSample = sampleDatas[sample_all];
         if( !itemSample ) return null;
 
         return(
@@ -274,7 +359,7 @@ class YLenhChuaThucHienComponent extends React.Component< MyProps, MyStates > {
                                             disabled={false}
                                             checked={sp.status}
                                             title={sp.ten_mau}
-                                            onPress={(event) => this._handleCheckbox( event, `${sample}_sample_${index}` )}
+                                            onPress={(event) => this._handleCheckbox( event, `${sample_all}_sample_${index}` )}
                                             textStyle={{ fontWeight: '400', marginLeft: 0 }}
                                             containerStyle={styles.checkboxPr}
                                         />
@@ -288,7 +373,7 @@ class YLenhChuaThucHienComponent extends React.Component< MyProps, MyStates > {
                                                         disabled={false}
                                                         checked={sub.status}
                                                         title={ sub.ten_mau }
-                                                        onPress={(event) => this._handleCheckbox( event, `${sample}_sample_${index}_${indexSub}` )}
+                                                        onPress={(event) => this._handleCheckbox( event, `${sample_all}_sample_${index}_${indexSub}` )}
                                                         textStyle={{ fontWeight: '400', marginLeft: 0 }}
                                                         containerStyle={styles.checkbox}
                                                     />
@@ -311,8 +396,85 @@ class YLenhChuaThucHienComponent extends React.Component< MyProps, MyStates > {
         })
     }
 
+    _submitThucHienYLenh = async()=> {
+        let {
+            YeuCau_Ids,
+            sample,
+            fetching
+        } = this.state;
+        
+        if( YeuCau_Ids.length == 0 || fetching) return;
+
+
+        this.setState({
+            fetching: true
+        });
+        
+        let url = this.props.SettingReducer.hostname + API_THUCHIENYLENH;
+        // for trong toàn bộ sample sub với status true
+        let hasErr = false;
+        try {
+            for( let i = 0 ; i < YeuCau_Ids.length; i++) {
+                try {
+                    let {
+                        user_idx
+                    } = this.props.UserReducer;
+                    let dataPost = {
+                        "UserName":"tichhop",
+                        "Password":"123456@a",
+                        "DataSign":"", 
+                        "ThoiGianThucHien": "",
+                        "DieuDuong_Id": user_idx,
+                        "YLenh_Id": null,
+                        "YeuCau_Id": YeuCau_Ids[i],
+                        "MauBenhPham_Id" : sample
+                    }; 
+                    
+                    let res = await Axios.post(url, JSON.stringify( dataPost ), {
+                        headers: { 
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                } catch(err) {
+                    Alert.alert('Thông báo', "Không thể cập nhật được thông tin bệnh án. Vui lòng thử lại!");
+                    // this.props.navigation.navigate('thucHienYLenhPageNavigation')
+                    // return false;
+                    console.log(err.message);
+                    hasErr = true;
+                } finally {
+                    this.setState({
+                        fetching: false
+                    });
+                }
+            }
+        } catch (err) {
+            console.log(err)
+        }
+        this.setState({
+            showModalConfirm: false
+        });
+        if( hasErr ) {
+            await this.props._getThongtinYLenh(this.props.soNhapVien);
+        } else {
+            await this.props._getThongtinYLenh(this.props.soNhapVien);
+            Alert.alert("Thông báo", "Cập nhật thông tin thành công", 
+            [
+                {
+                    text: 'Ok',
+                    onPress: () =>{
+                        
+                    },
+                },
+            ]);
+        }
+    }
+
     render() {
         let data = this.state;
+        let {
+            userData
+        } = this.props;
         return(
             <SafeAreaView style={styles.container}>
                 <ScrollView style={styles.scrollview}>
@@ -320,7 +482,7 @@ class YLenhChuaThucHienComponent extends React.Component< MyProps, MyStates > {
                         <View style={{...styles.col_2, width: col2}}>
                             <Text>Thời gian thực hiện</Text>
                             <View style={{...styles.inputGroup, width: col2 }}>
-                                <Text style={styles.input}>{data.doTimeAt.toLocaleString()}</Text>
+                                <Text style={styles.input}>{`${data.doTimeAt.getDay()}/${data.doTimeAt.getMonth()+1}/${data.doTimeAt.getFullYear()} ${data.doTimeAt.getHours()}:${data.doTimeAt.getMinutes()}:${data.doTimeAt.getSeconds()}`}</Text>
                             </View>
                         </View>
                         <View style={{...styles.col_2, width: col2, zIndex: 20}}>
@@ -340,38 +502,44 @@ class YLenhChuaThucHienComponent extends React.Component< MyProps, MyStates > {
                     <View style={styles.samples}>
                         { this._renderMauBenhPham() }
                     </View>
-
-                    {
-                        data.sample.trim() != '-1' &&
-                        <View style={styles.btns}>
-                            <TouchableOpacity style={{...styles.btn, backgroundColor: 'silver'}}
-                                onPress={()=> this.props.navigation.navigate('thucHienYLenhPageNavigation')}
-                            >
-                                <Text style={styles.btnText}>Thoát</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.btn} onPress={this._handleXacNhanBenhPham}>
-                                <Text style={styles.btnText}>Xác nhận</Text>
-                            </TouchableOpacity>
-                        </View>
-                    }
                 </ScrollView>
+                {
+                    data.sample != -1 &&
+                    <View style={styles.btns}>
+                        <TouchableOpacity style={{...styles.btn, backgroundColor: 'silver'}}
+                            onPress={()=> this.props.navigation.navigate('thucHienYLenhPageNavigation')}
+                        >
+                            <Text style={styles.btnText}>Thoát</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.btn} onPress={this._handleXacNhanBenhPham}>
+                            <Text style={styles.btnText}>Xác nhận</Text>
+                        </TouchableOpacity>
+                    </View>
+                }
                 <Modal isVisible={data.showModalConfirm}>
                     <View style={styles.modalBody}>
                         <View style={styles.modalBodyContent}>
                             <Text style={{...styles.modalText, fontSize: 12}}>Bạn có muốn xác nhận thực hiện y lệnh cho bệnh nhân</Text>
-                            <Text style={styles.modalText}>{data.userData.fullname} - Số nhập viện: {data.userData.soNhapVien}</Text>
+                            <Text style={styles.modalText}>{userData.TENBENHNHAN} - Số nhập viện: {userData.SONHAPVIEN}</Text>
                         </View>
                         <View style={styles.modalBtns}>
-                            <TouchableOpacity style={{...styles.btn, backgroundColor: 'silver'}}
-                                onPress={()=> this.setState({
-                                    showModalConfirm: false
-                                })}
-                            >
-                                <Text style={styles.btnText}>Thoát</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.btn} onPress={()=> this.props.navigation.navigate('thucHienYLenhPageNavigation')}>
-                                <Text style={styles.btnText}>Xác nhận</Text>
-                            </TouchableOpacity>
+                            {
+                                data.fetching ?
+                                <ActivityIndicator size={30} color={'#00cdff'} />
+                                :
+                                <>
+                                    <TouchableOpacity style={{...styles.btn, backgroundColor: 'silver'}}
+                                        onPress={()=> this.setState({
+                                            showModalConfirm: false
+                                        })}
+                                    >
+                                        <Text style={styles.btnText}>Thoát</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity style={styles.btn} onPress={this._submitThucHienYLenh}>
+                                        <Text style={styles.btnText}>Xác nhận</Text>
+                                    </TouchableOpacity>
+                                </>
+                            }
                         </View>
                     </View>
                 </Modal>
@@ -380,4 +548,16 @@ class YLenhChuaThucHienComponent extends React.Component< MyProps, MyStates > {
     }
 }
 
-export default YLenhChuaThucHienComponent;
+const mapStateToProps = (state : any) => ({
+    SettingReducer : state.SettingReducer,
+    UserReducer : state.UserReducer
+});
+
+const mapDispatchToProps = (dispatch: any) => ({
+    
+});
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(YLenhChuaThucHienComponent);

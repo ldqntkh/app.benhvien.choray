@@ -3,7 +3,7 @@ import * as React from 'react';
 import { ActivityIndicator, Alert, SafeAreaView } from 'react-native';
 import {
     View, TextInput,
-    Text, TouchableOpacity, KeyboardAvoidingView
+    Text, TouchableOpacity, KeyboardAvoidingView, Keyboard
 } from 'react-native';
 import Axios from 'axios';
 import { connect } from 'react-redux';
@@ -52,10 +52,10 @@ class LoginComponent extends React.Component<MyProps, MyStates> {
     constructor(props: MyProps) {
         super(props);
         this.state = {
-            username: 'tichhop',
+            username: '',
             errUserName: '',
 
-            password: '123456@a',
+            password: '',
             errPassword: '',
 
             hasHardware: false,
@@ -130,6 +130,7 @@ class LoginComponent extends React.Component<MyProps, MyStates> {
 
     _submitForm = async ()=> {
         if( this.state.fetching ) return;
+        Keyboard.dismiss();
         let {
             username, password
         } = this.state;
@@ -165,17 +166,19 @@ class LoginComponent extends React.Component<MyProps, MyStates> {
             let url_login = this.props.SettingReducer.hostname + API_LOGIN;
 
             let dataUser = {
-                "UserName":username,
-                "Password":password,
+                "UserName":"tichhop",
+                "Password":"123456@a",
                 "DataSign":"", 
-                "DATA":"FPTCR"
+                "DATA":username
             };
+            // "DATA":"FPTCR"
+            // "DATA":"fptehos"
 
             let dataPass = {
-                "UserName":username,
-                "Password":password,
+                "UserName":"tichhop",
+                "Password":"123456@a",
                 "DataSign":"", 
-                "DATA":"fptehos"
+                "DATA":password
             };
 
             let encodeUser = '', encodePass = '';
@@ -209,11 +212,11 @@ class LoginComponent extends React.Component<MyProps, MyStates> {
                 });
                 return false;
             }
-
+            
             // call func đăng nhập
             let resLogin = await Axios.post(url_login, JSON.stringify( {
-                "UserName":username,
-                "Password":password,
+                "UserName":"tichhop",
+                "Password":"123456@a",
                 "DataSign":"", 
                 "TenDangNhap":encodeUser,
                 "MatKhau":encodePass
@@ -248,8 +251,14 @@ class LoginComponent extends React.Component<MyProps, MyStates> {
             
         } catch (err) {
             console.log(err.message)
+            // xóa thông tin đăng nhập local nếu có
+            await AsyncStorage.removeItem(LocalStoreAccountKey);
+            await AsyncStorage.removeItem(LocalStoreHardwareKey);
+            // xóa vân tay nếu có
+
             this.setState({
-                errPassword: "Sai thông tin đăng nhập"
+                errPassword: "Sai thông tin đăng nhập",
+                hasHardware: false
             });
         } finally {
             this.setState({
@@ -290,6 +299,7 @@ class LoginComponent extends React.Component<MyProps, MyStates> {
                     let account : any = await AsyncStorage.getItem( LocalStoreAccountKey );
                     if( account ) {
                         account = JSON.parse(account);
+                        
                         this.setState({
                             username: account.username,
                             password: account.password

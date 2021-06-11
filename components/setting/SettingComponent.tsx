@@ -12,7 +12,7 @@ import {
     SetSettingHostname
 } from '../../actions/actionFuncs';
 import {
-    LocalHostnameKey
+    LocalHostnameKey, LocalStoreAccountKey, LocalStoreHardwareKey
 } from '../../constants/Variable';
 
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -42,9 +42,6 @@ interface MyStates {
     hardwareSupport: Array<Number>,
     hostname: string
 }
-
-const LocalStoreHardwareKey = 'LocalStoreHardwareKey';
-const LocalStoreAccountKey = 'LocalStoreAccountKey';
 
 class SettingComponent extends React.Component< MyProps, MyStates > {
 
@@ -281,18 +278,21 @@ class SettingComponent extends React.Component< MyProps, MyStates > {
 
                         {/* đăng nhập vân tay */}
                         {
-                            hasHardware &&
+                            
                             <View style={styles.hardware}>
-                                <View style={styles.lineItem}>
-                                    <Text>Sử dụng xác thực để đăng nhập</Text>
-                                    <Switch
-                                        trackColor={{ false: "#767577", true: "#b5f7bf" }}
-                                        thumbColor={useHardware ? "#4dd162" : "#f4f3f4"}
-                                        ios_backgroundColor="#3e3e3e"
-                                        onValueChange={this._toggleSwitch}
-                                        value={useHardware}
-                                    />
-                                </View>
+                                {
+                                    hasHardware &&
+                                    <View style={styles.lineItem}>
+                                        <Text>Sử dụng xác thực để đăng nhập</Text>
+                                        <Switch
+                                            trackColor={{ false: "#767577", true: "#b5f7bf" }}
+                                            thumbColor={useHardware ? "#4dd162" : "#f4f3f4"}
+                                            ios_backgroundColor="#3e3e3e"
+                                            onValueChange={this._toggleSwitch}
+                                            value={useHardware}
+                                        />
+                                    </View>
+                                }
                                 <View style={{...styles.lineItem, flexWrap: 'wrap', height: 80, paddingTop: 10}}>
                                     <Text>Hostname</Text>
                                     <View style={styles.inputGroup}>

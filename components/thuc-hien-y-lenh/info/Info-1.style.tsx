@@ -1,6 +1,5 @@
 import React from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
-import constColor from '../../../constants/Colors';
 let {
     width, height
 } = Dimensions.get('window');
@@ -15,7 +14,8 @@ const styles = StyleSheet.create({
         flex: 1
     },
     scrollview: {
-        width: width
+        width: width,
+        height: height - 60
     },
     groupInput: {
         width: width,
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
         marginBottom: 0,
         padding: 1,
         marginLeft: 5,
-        width: width - 40
+        width: width - 80
     },
     sub_sample: {
         display: 'flex',

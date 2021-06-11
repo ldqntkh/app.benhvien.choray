@@ -2,7 +2,7 @@ import React from 'react';
 
 import {
     SafeAreaView, View, ScrollView,
-    Text, TouchableOpacity, Button,
+    Text, TouchableOpacity,
     Linking
 } from 'react-native';
 import constColor from '../../constants/Colors';
@@ -10,15 +10,12 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import Icon5 from 'react-native-vector-icons/FontAwesome5';
 import IconMaterial from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-
-import * as LocalAuthentication from 'expo-local-authentication';
-
+import { connect } from 'react-redux';
 import styles from './HomePage.style';
 
-import Modal from 'react-native-modal';
-
 interface MyProps {
-    navigation: any
+    navigation: any,
+    UserReducer: any
 }
 
 interface MyStates {
@@ -32,48 +29,11 @@ class HomePageComponent extends React.Component< MyProps, MyStates > {
             show: false
         }
     }
-    toggleModal = async() => {
-        // this.setState({
-        //     show: !this.state.show
-        // })
-        await this._checkPermission();
-    };
-
-    _checkPermission = async()=> {
-        let status = await LocalAuthentication.hasHardwareAsync();
-        if( status ) {
-            let responseHardware = await LocalAuthentication.supportedAuthenticationTypesAsync();
-            if( responseHardware && responseHardware.length > 0 ) {
-                let checkStatus = await LocalAuthentication.isEnrolledAsync();
-                // console.log(checkStatus);
-                let label = '';
-                if( responseHardware.includes(1) ) {
-                    label = 'vân tay';
-                }
-                if( responseHardware.includes(2) ) {
-                    label = 'FaceID';
-                }
-                if( responseHardware.includes(3) ) {
-                    label = 'mống mắt';
-                }
-
-                let auth = await LocalAuthentication.authenticateAsync({
-                    "promptMessage" : `Sử dụng ${label} để đăng nhập`,
-                    cancelLabel: "Hủy",
-                    fallbackLabel: "Xác thực không thành công",
-                    disableDeviceFallback: true
-                });
-                console.log(auth)
-            }
-        }
-    }
-
     render() {
-
         return(
             <SafeAreaView style={styles.container}>
                 <View style={styles.header}>
-                    <Text style={styles.headerTitle}>Xin chào Admin</Text>
+                    <Text style={styles.headerTitle}>Xin chào {this.props.UserReducer.fullname}</Text>
                 </View>
                 <ScrollView style={styles.body}>
                     <View style={styles.lstItems}>
@@ -109,17 +69,19 @@ class HomePageComponent extends React.Component< MyProps, MyStates > {
 
                     </View>
                 </ScrollView>
-
-                <Modal isVisible={this.state.show}>
-                    <View style={{flex: 1}}>
-                        <Text>Hello!</Text>
-
-                        <Button title="Hide modal" onPress={this.toggleModal} />
-                    </View>
-                </Modal>
             </SafeAreaView>
         )
     }
 }
+const mapStateToProps = (state : any) => ({
+    UserReducer : state.UserReducer
+});
 
-export default HomePageComponent;
+const mapDispatchToProps = (dispatch: any) => ({
+    
+});
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(HomePageComponent);

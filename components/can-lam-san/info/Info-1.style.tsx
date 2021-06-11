@@ -51,7 +51,8 @@ const styles = StyleSheet.create({
         marginTop: 5,
         paddingBottom: 5,
         borderBottomWidth: 1,
-        borderBottomColor: 'silver'
+        borderBottomColor: 'silver',
+        overflow: 'hidden'
     },
     lineItemStatusNonBorder: {
         width: width-10,
@@ -60,7 +61,8 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
         flexDirection: 'row',
         marginTop: 5,
-        paddingBottom: 5
+        paddingBottom: 5,
+        overflow: 'hidden'
     },
     borderLabel: {
         paddingLeft: 5,

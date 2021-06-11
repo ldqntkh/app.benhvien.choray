@@ -1,14 +1,17 @@
 import React from 'react';
 import {
-    SafeAreaView, ScrollView, View, Text, Dimensions, Platform, TouchableOpacity
+    SafeAreaView, ScrollView, View, Text, Dimensions, Platform, TouchableOpacity, TextInput, Alert,
+    ActivityIndicator
 } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { CheckBox } from 'react-native-elements';
-
+import Axios from 'axios';
 import styles from './Info-1.style';
 
 import Modal from 'react-native-modal';
+import { API_GIAOMAU } from '../../../constants/Variable';
+import { connect } from 'react-redux';
 let {
     width
 } = Dimensions.get('window');
@@ -18,7 +21,13 @@ if( col2 < 180 ) {
 }
 
 interface MyProps {
-    navigation: any
+    navigation: any,
+    yLenhs: Array<Object>,
+    userData: any,
+    SettingReducer : any,
+    UserReducer : any,
+    _getThongtinBenhPham: any,
+    soNhapVien: any
 }
 
 interface MyStates {
@@ -27,17 +36,19 @@ interface MyStates {
     notes: string,
     sampleDatas: any,
     showModalConfirm: boolean,
-    userData: {
-        fullname: string,
-        maBenhNhan: string,
-        soNhapVien: string,
-        soBHYT: string,
-        sex: string,
-        phone: string,
-        birthdayYear: number,
-        age: number,
-        personType: string
-    }
+    YeuCau_Ids: Array<any>,
+    fetching: boolean
+    // userData: {
+    //     fullname: string,
+    //     maBenhNhan: string,
+    //     soNhapVien: string,
+    //     soBHYT: string,
+    //     sex: string,
+    //     phone: string,
+    //     birthdayYear: number,
+    //     age: number,
+    //     personType: string
+    // }
 }
 
 var TimeOut : any = null;
@@ -51,93 +62,84 @@ class BenhPhamDetailComponent extends React.Component< MyProps, MyStates > {
             doTimeAt: new Date(),
             sample: '-1',
             notes: '',
+            YeuCau_Ids: [],
+            fetching: false,
             sampleDatas: {
-                "mau" : {
-                    ten_mau: "Máu",
-                    bs_chidinh: "Nguyễn Minh C",
-                    timeAt: "10-12-2021 10:20:00",
-                    sample: [
-                        {
-                            ten_mau: "XN.Huyết học",
-                            status: false,
-                            subs: [
-                                { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false },
-                                { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false },
-                                { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false }
-                            ]
-                        },
-                        {
-                            ten_mau: "XN.Sinh hóa",
-                            status: false,
-                            subs: [
-                                { ten_mau: "Định lượng Ure máu", status: false },
-                                { ten_mau: "Định lượng Ure máu", status: false },
-                                { ten_mau: "Định lượng Ure máu", status: false }
-                            ]
-                        }
-                    ]
-                },
-                "nuoc_tieu" : {
-                    ten_mau: "Nước tiểu",
-                    bs_chidinh: "Nguyễn Minh C",
-                    timeAt: "10-12-2021 10:20:00",
-                    sample: [
-                        {
-                            ten_mau: "XN.Huyết học",
-                            status: false,
-                            subs: [
-                                { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false },
-                                { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false },
-                                { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false }
-                            ]
-                        },
-                        {
-                            ten_mau: "XN.Sinh hóa",
-                            status: false,
-                            subs: [
-                                { ten_mau: "Định lượng Ure máu", status: false },
-                                { ten_mau: "Định lượng Ure máu", status: false },
-                                { ten_mau: "Định lượng Ure máu", status: false }
-                            ]
-                        }
-                    ]
-                },
-                "phan" : {
-                    ten_mau: "Phân",
-                    bs_chidinh: "Nguyễn Minh C",
-                    timeAt: "10-12-2021 10:20:00",
-                    sample: [
-                        {
-                            ten_mau: "XN.Huyết học",
-                            status: false,
-                            subs: [
-                                { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false },
-                                { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false },
-                                { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false }
-                            ]
-                        },
-                        {
-                            ten_mau: "XN.Sinh hóa",
-                            status: false,
-                            subs: [
-                                { ten_mau: "Định lượng Ure máu", status: false },
-                                { ten_mau: "Định lượng Ure máu", status: false },
-                                { ten_mau: "Định lượng Ure máu", status: false }
-                            ]
-                        }
-                    ]
-                }
-            },
-            userData: {
-                fullname: "Nguyễn Thị B",
-                maBenhNhan: '20802218',
-                soNhapVien: '20802218',
-                soBHYT: '20802218',
-                sex: 'Nữ',
-                phone: '0392891227',
-                birthdayYear: 1950,
-                age: 60,
-                personType: 'Viện phí'
+                // "mau" : {
+                //     ten_mau: "Máu",
+                //     bs_chidinh: "Nguyễn Minh C",
+                //     timeAt: "10-12-2021 10:20:00",
+                //     sample: [
+                //         {
+                //             ten_mau: "XN.Huyết học",
+                //             status: false,
+                //             subs: [
+                //                 { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false },
+                //                 { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false },
+                //                 { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false }
+                //             ]
+                //         },
+                //         {
+                //             ten_mau: "XN.Sinh hóa",
+                //             status: false,
+                //             subs: [
+                //                 { ten_mau: "Định lượng Ure máu", status: false },
+                //                 { ten_mau: "Định lượng Ure máu", status: false },
+                //                 { ten_mau: "Định lượng Ure máu", status: false }
+                //             ]
+                //         }
+                //     ]
+                // },
+                // "nuoc_tieu" : {
+                //     ten_mau: "Nước tiểu",
+                //     bs_chidinh: "Nguyễn Minh C",
+                //     timeAt: "10-12-2021 10:20:00",
+                //     sample: [
+                //         {
+                //             ten_mau: "XN.Huyết học",
+                //             status: false,
+                //             subs: [
+                //                 { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false },
+                //                 { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false },
+                //                 { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false }
+                //             ]
+                //         },
+                //         {
+                //             ten_mau: "XN.Sinh hóa",
+                //             status: false,
+                //             subs: [
+                //                 { ten_mau: "Định lượng Ure máu", status: false },
+                //                 { ten_mau: "Định lượng Ure máu", status: false },
+                //                 { ten_mau: "Định lượng Ure máu", status: false }
+                //             ]
+                //         }
+                //     ]
+                // },
+                // "phan" : {
+                //     ten_mau: "Phân",
+                //     bs_chidinh: "Nguyễn Minh C",
+                //     timeAt: "10-12-2021 10:20:00",
+                //     sample: [
+                //         {
+                //             ten_mau: "XN.Huyết học",
+                //             status: false,
+                //             subs: [
+                //                 { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false },
+                //                 { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false },
+                //                 { ten_mau: "Tổng phân tích tế bào máu ngoại vi", status: false }
+                //             ]
+                //         },
+                //         {
+                //             ten_mau: "XN.Sinh hóa",
+                //             status: false,
+                //             subs: [
+                //                 { ten_mau: "Định lượng Ure máu", status: false },
+                //                 { ten_mau: "Định lượng Ure máu", status: false },
+                //                 { ten_mau: "Định lượng Ure máu", status: false }
+                //             ]
+                //         }
+                //     ]
+                // }
             }
         }
     }
@@ -147,10 +149,99 @@ class BenhPhamDetailComponent extends React.Component< MyProps, MyStates > {
         TimeOut = setInterval(()=> {
             that.setState({ doTimeAt: new Date() })
         }, 1000);
+
+        this._filterDataBenhPham();
     }
 
     componentWillUnmount() {
         if( TimeOut !== null ) clearInterval(TimeOut);
+    }
+
+    _filterDataBenhPham = ()=> {
+        let {
+            yLenhs
+        } = this.props;
+        
+        let rs : any = {};
+        for( let i = 0; i < yLenhs.length; i++ ) {
+            let item : any = yLenhs[i];
+            
+            // if( !rs[item.BENHPHAM_IDX] ) {
+            //     rs[item.BENHPHAM_IDX] = {};
+                
+            //     let benhpham : any = rs[item.BENHPHAM_IDX];
+            //     benhpham.BENHPHAM_IDX = item.BENHPHAM_IDX;
+            //     benhpham.ten_mau = item.TENBENHPHAM;
+            //     rs[item.BENHPHAM_IDX] = benhpham;
+            // }
+            if( !rs[0] ) {
+                rs[0] = {};
+                
+                let benhpham : any = rs[0];
+                benhpham.BENHPHAM_IDX = 0;
+                benhpham.ten_mau = item.TENBENHPHAM;
+                rs[0] = benhpham;
+            }
+            
+
+            let benhpham : any = rs[0];
+            
+            if( benhpham.sample && benhpham.sample.length > 0 ) {
+                let added = false;
+                for( let i = 0; i < benhpham.sample.length; i++ ) {
+                    if( benhpham.sample[i].id_mau == item.MANHOMDICHVU ) {
+                        benhpham.sample[i].subs.push({ 
+                            DICHVU_IDX: item.DICHVU_IDX, 
+                            YEUCAU_IDX: item.YEUCAU_IDX, 
+                            id_mau: item.MADICHVU, 
+                            ten_mau: item.TENDICHVU, 
+                            status: false 
+                        });
+                        added = true;
+                        break;
+                    }
+                }
+                if( !added ) {
+                    let benhPhamItem : any = {};
+                
+                    benhPhamItem.id_mau = item.MANHOMDICHVU;
+                    benhPhamItem.ten_mau = item.TENNHOMDICHVU;
+                    benhPhamItem.status = false;
+                    benhPhamItem.subs = [];
+                    benhPhamItem.subs.push({ 
+                        DICHVU_IDX: item.DICHVU_IDX, 
+                        YEUCAU_IDX: item.YEUCAU_IDX, 
+                        id_mau: item.MADICHVU, 
+                        ten_mau: item.TENDICHVU, 
+                        status: false 
+                    });
+                    benhpham.sample.push(benhPhamItem);
+                }
+            } else {
+                benhpham.sample = [];
+                
+                let benhPhamItem : any = {};
+                
+                benhPhamItem.id_mau = item.MANHOMDICHVU;
+                benhPhamItem.ten_mau = item.TENNHOMDICHVU;
+                benhPhamItem.status = false;
+                benhPhamItem.subs = [];
+                benhPhamItem.subs.push({ 
+                    DICHVU_IDX: item.DICHVU_IDX, 
+                    YEUCAU_IDX: item.YEUCAU_IDX, 
+                    id_mau: item.MADICHVU, 
+                    ten_mau: item.TENDICHVU, 
+                    status: false 
+                });
+                benhpham.sample.push(benhPhamItem);
+            }
+            rs[item.BENHPHAM_IDX] = benhpham;
+        }
+        
+        this.setState({
+            sampleDatas: rs,
+            sample: '0'
+        })
     }
 
     _renderBenhPham = ()=> {
@@ -209,7 +300,8 @@ class BenhPhamDetailComponent extends React.Component< MyProps, MyStates > {
     _handleCheckbox = (event: any, key: string)=> {
         let {
             sample,
-            sampleDatas
+            sampleDatas,
+            YeuCau_Ids
         } = this.state;
 
         key = key.split('sample_')[1];
@@ -223,15 +315,26 @@ class BenhPhamDetailComponent extends React.Component< MyProps, MyStates > {
             let total = sampleDatas[sample].sample[keys[0]].subs.length;
             let totalCheck = 0;
             for( let i = 0; i < total; i++ ) {
-                if( sampleDatas[sample].sample[keys[0]].subs[i].status ) totalCheck ++;
+                if( sampleDatas[sample].sample[keys[0]].subs[i].status ) {
+                    totalCheck ++;
+                    if( YeuCau_Ids.indexOf(sampleDatas[sample].sample[keys[0]].subs[i].YEUCAU_IDX) < 0 ) {
+                        YeuCau_Ids.push( sampleDatas[sample].sample[keys[0]].subs[i].YEUCAU_IDX );
+                    }
+                } else {
+                    let index = YeuCau_Ids.indexOf( sampleDatas[sample].sample[keys[0]].subs[i].YEUCAU_IDX );
+                    if(index > -1)
+                        YeuCau_Ids.splice(index, 1);
+                }
             }
             if( totalCheck == total ) {
-                sampleDatas[sample].sample[keys[0]].status = true
+                sampleDatas[sample].sample[keys[0]].status = true;
+                
             } else {
                 sampleDatas[sample].sample[keys[0]].status = false
             }
             this.setState({
-                sampleDatas
+                sampleDatas,
+                YeuCau_Ids
             })
         } else {
             let status = sampleDatas[sample].sample[keys[0]].status;
@@ -239,12 +342,98 @@ class BenhPhamDetailComponent extends React.Component< MyProps, MyStates > {
             // set all subs
             for( let i = 0; i < sampleDatas[sample].sample[keys[0]].subs.length; i++ ) {
                 sampleDatas[sample].sample[keys[0]].subs[i].status = !status;
+                if( status ) {
+                    let index = YeuCau_Ids.indexOf( sampleDatas[sample].sample[keys[0]].subs[i].YEUCAU_IDX );
+                    if(index > -1)
+                        YeuCau_Ids.splice(index, 1);
+                } else {
+                    if( YeuCau_Ids.indexOf(sampleDatas[sample].sample[keys[0]].subs[i].YEUCAU_IDX) < 0) {
+                        YeuCau_Ids.push( sampleDatas[sample].sample[keys[0]].subs[i].YEUCAU_IDX );
+                    }
+                }
             }
             this.setState({
-                sampleDatas
+                sampleDatas,
+                YeuCau_Ids
             })
         }
         
+    }
+
+
+    _submitGiaoMau = async()=> {
+        let {
+            YeuCau_Ids,
+            fetching,
+            notes
+        } = this.state;
+        
+        if( YeuCau_Ids.length == 0 || fetching) return;
+
+
+        this.setState({
+            fetching: true
+        });
+        
+        let url = this.props.SettingReducer.hostname + API_GIAOMAU;
+        // for trong toàn bộ sample sub với status true
+        let hasErr = false;
+        try {
+            for( let i = 0 ; i < YeuCau_Ids.length; i++) {
+                try {
+                    let {
+                        user_idx,
+                    } = this.props.UserReducer;
+                    let dataPost = {
+                        "UserName":"tichhop",
+                        "Password":"123456@a",
+                        "DataSign":"", 
+                        "ThoiGianThucHien": "",
+                        "DieuDuong_Id": user_idx,
+                        "TenDieuDuong": this.props.UserReducer.fullname,
+                        "YeuCau_Id": YeuCau_Ids[i],
+                        "GhiChu" : notes
+                    }; 
+                    
+                    let res = await Axios.post(url, JSON.stringify( dataPost ), {
+                        headers: { 
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                } catch(err) {
+                    Alert.alert('Thông báo', "Không thể cập nhật được thông tin bệnh án. Vui lòng thử lại!");
+                    // this.props.navigation.navigate('thucHienYLenhPageNavigation')
+                    // return false;
+                    console.log(err.message);
+                    hasErr = true;
+                } finally {
+                    this.setState({
+                        fetching: false
+                    });
+                }
+            }
+        } catch (err) {
+            console.log(err)
+        }
+        this.setState({
+            showModalConfirm: false
+        });
+        if( hasErr ) {
+            await this.props._getThongtinBenhPham(this.props.soNhapVien);
+        } else {
+            await this.props._getThongtinBenhPham(this.props.soNhapVien);
+            return Alert.alert("Thông báo", "Cập nhật thông tin thành công", 
+            [
+                {
+                    text: 'Ok',
+                    onPress: async () =>{
+                        
+                    },
+                }
+            ]);
+            
+        }
     }
 
     _renderMauBenhPham = ()=> {
@@ -313,6 +502,10 @@ class BenhPhamDetailComponent extends React.Component< MyProps, MyStates > {
 
     render() {
         let data = this.state;
+        let {
+            userData
+        } = this.props;
+        
         return(
             <SafeAreaView style={styles.container}>
                 <ScrollView style={styles.scrollview}>
@@ -323,16 +516,16 @@ class BenhPhamDetailComponent extends React.Component< MyProps, MyStates > {
                                 <Text style={styles.input}>{data.doTimeAt.toLocaleString()}</Text>
                             </View>
                         </View>
-                        <View style={{...styles.col_2, width: col2, zIndex: 20}}>
+                        {/* <View style={{...styles.col_2, width: col2, zIndex: 20}}>
                             <Text>Bệnh phẩm</Text>
                             <View style={{...styles.inputGroup, width: col2, zIndex: 20 }}>
                                 { this._renderBenhPham() }
                             </View>
-                        </View>
-                        <View style={{...styles.col_2, width: col2, zIndex: 10}}>
+                        </View> */}
+                        <View style={{...styles.col_2, width: width, zIndex: 10}}>
                             <Text>Ghi chú</Text>
                             <View style={{...styles.inputGroup, width: width-20 }}>
-                                <Text style={styles.input}>{data.notes}</Text>
+                                <TextInput style={styles.input} onChangeText={(value: any)=> this.setState({ notes: value })}>{data.notes}</TextInput>
                             </View>
                         </View>
                     </View>
@@ -340,38 +533,44 @@ class BenhPhamDetailComponent extends React.Component< MyProps, MyStates > {
                     <View style={styles.samples}>
                         { this._renderMauBenhPham() }
                     </View>
-
-                    {
-                        data.sample.trim() != '-1' &&
-                        <View style={styles.btns}>
-                            <TouchableOpacity style={{...styles.btn, backgroundColor: 'silver'}}
-                                onPress={()=> this.props.navigation.navigate('thucHienYLenhPageNavigation')}
-                            >
-                                <Text style={styles.btnText}>Thoát</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.btn} onPress={this._handleXacNhanBenhPham}>
-                                <Text style={styles.btnText}>Xác nhận</Text>
-                            </TouchableOpacity>
-                        </View>
-                    }
                 </ScrollView>
+                {
+                    data.sample.trim() != '-1' &&
+                    <View style={styles.btns}>
+                        <TouchableOpacity style={{...styles.btn, backgroundColor: 'silver'}}
+                            onPress={()=> this.props.navigation.navigate('banGiaoChiDinhPageNavigation')}
+                        >
+                            <Text style={styles.btnText}>Thoát</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.btn} onPress={this._handleXacNhanBenhPham}>
+                            <Text style={styles.btnText}>Xác nhận</Text>
+                        </TouchableOpacity>
+                    </View>
+                }
                 <Modal isVisible={data.showModalConfirm}>
                     <View style={styles.modalBody}>
                         <View style={styles.modalBodyContent}>
-                            <Text style={{...styles.modalText, fontSize: 12}}>Bạn có muốn xác nhận thực hiện y lệnh cho bệnh nhân</Text>
-                            <Text style={styles.modalText}>{data.userData.fullname} - Số nhập viện: {data.userData.soNhapVien}</Text>
+                            <Text style={{...styles.modalText, fontSize: 12}}>Bạn có muốn xác nhận đã tiếp nhận mẫu bệnh phẩm?</Text>
+                            <Text style={styles.modalText}>{userData.TENBENHNHAN} - Số nhập viện: {userData.SONHAPVIEN}</Text>
                         </View>
                         <View style={styles.modalBtns}>
-                            <TouchableOpacity style={{...styles.btn, backgroundColor: 'silver'}}
-                                onPress={()=> this.setState({
-                                    showModalConfirm: false
-                                })}
-                            >
-                                <Text style={styles.btnText}>Thoát</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.btn} onPress={()=> this.props.navigation.navigate('thucHienYLenhPageNavigation')}>
-                                <Text style={styles.btnText}>Xác nhận</Text>
-                            </TouchableOpacity>
+                            {
+                                data.fetching ?
+                                <ActivityIndicator size={30} color={'#00cdff'} />
+                                :
+                                <>
+                                    <TouchableOpacity style={{...styles.btn, backgroundColor: 'silver'}}
+                                        onPress={()=> this.setState({
+                                            showModalConfirm: false
+                                        })}
+                                    >
+                                        <Text style={styles.btnText}>Thoát</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity style={styles.btn} onPress={this._submitGiaoMau}>
+                                        <Text style={styles.btnText}>Xác nhận</Text>
+                                    </TouchableOpacity>
+                                </>
+                            }
                         </View>
                     </View>
                 </Modal>
@@ -380,4 +579,16 @@ class BenhPhamDetailComponent extends React.Component< MyProps, MyStates > {
     }
 }
 
-export default BenhPhamDetailComponent;
+const mapStateToProps = (state : any) => ({
+    SettingReducer : state.SettingReducer,
+    UserReducer : state.UserReducer
+});
+
+const mapDispatchToProps = (dispatch: any) => ({
+    
+});
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(BenhPhamDetailComponent);
