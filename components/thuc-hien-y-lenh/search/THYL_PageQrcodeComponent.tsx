@@ -1,7 +1,7 @@
 import React from 'react';
 import {
     SafeAreaView, View, Platform,
-    Alert
+    Alert, TouchableOpacity, Text
 } from 'react-native';
 
 import { BarCodeScanner } from 'expo-barcode-scanner';
@@ -85,11 +85,11 @@ class THYL_PageQrCodeComponent extends React.Component< MyProps, MyStates > {
               {
                 text: 'Xác nhận',
                 onPress: () =>{
-                    this.props.navigation.navigate('ylenhDetailPageNavigation', {soNhapVien: barcodes});
-                    this.setState({
-                        scanned: false,
-                        barcodes: ''
-                    })
+                    this.props.navigation.navigate('ylenhDetailPageNavigation', {soNhapVien: barcodes, resetCamera: this.resetCamera});
+                    // this.setState({
+                    //     // scanned: false,
+                    //     barcodes: ''
+                    // })
                 },
               },
               {
@@ -110,30 +110,39 @@ class THYL_PageQrCodeComponent extends React.Component< MyProps, MyStates > {
 
     render() {
         let {
-            hasCameraPermission
+            hasCameraPermission,
+            scanned
         } = this.state;
         return(
             <SafeAreaView style={styles.container}>
                 <View style={styles.barcodeControl}>
                     {
-                        hasCameraPermission && 
-                        <>
-                            <BarCodeScanner
-                                onBarCodeScanned={this._handleBarCodeRead}
-                                // onBarCodeRead={this._handleBarCodeRead}
-                                style={Platform.OS == 'ios' ? styles.rectBarcode : [{...styles.rectBarcode},{ height: 500 }]} />
-                            {
-                                Platform.OS == 'ios' &&
-                                <View style={styles.realBarcode}>
-                                    <View style={styles.realBarcode_1}></View>
-                                    <View style={styles.realBarcode_2}></View>
-                                    <View style={styles.realBarcode_3}></View>
-                                    <View style={styles.realBarcode_4}></View>
-                                    <View style={styles.realBarcode_5}></View>
-                                </View>
-                            }
-                        </>
+                        scanned ?
+                        <View style={styles.checkAgain}>
+                            <TouchableOpacity style={styles.btnAgain} onPress={()=> this.setState({ scanned: false, barcodes: '' })}>
+                                <Text style={styles.btnLabelAgain}>Quét mã</Text>
+                            </TouchableOpacity>
+                        </View> 
+                        :
+                            hasCameraPermission && 
+                            <>
+                                <BarCodeScanner
+                                    onBarCodeScanned={this._handleBarCodeRead}
+                                    // onBarCodeRead={this._handleBarCodeRead}
+                                    style={Platform.OS == 'ios' ? styles.rectBarcode : [{...styles.rectBarcode},{ height: 500 }]} />
+                                {
+                                    Platform.OS == 'ios' &&
+                                    <View style={styles.realBarcode}>
+                                        <View style={styles.realBarcode_1}></View>
+                                        <View style={styles.realBarcode_2}></View>
+                                        <View style={styles.realBarcode_3}></View>
+                                        <View style={styles.realBarcode_4}></View>
+                                        <View style={styles.realBarcode_5}></View>
+                                    </View>
+                                }
+                            </>
                     }
+                    
                     
                 </View>
             </SafeAreaView>

@@ -482,7 +482,7 @@ class YLenhChuaThucHienComponent extends React.Component< MyProps, MyStates > {
                         <View style={{...styles.col_2, width: col2}}>
                             <Text>Thời gian thực hiện</Text>
                             <View style={{...styles.inputGroup, width: col2 }}>
-                                <Text style={styles.input}>{`${data.doTimeAt.getDay()}/${data.doTimeAt.getMonth()+1}/${data.doTimeAt.getFullYear()} ${data.doTimeAt.getHours()}:${data.doTimeAt.getMinutes()}:${data.doTimeAt.getSeconds()}`}</Text>
+                                <Text style={styles.input}>{`${data.doTimeAt.getDate()}/${data.doTimeAt.getMonth()+1}/${data.doTimeAt.getFullYear()} ${data.doTimeAt.getHours()}:${data.doTimeAt.getMinutes()}:${data.doTimeAt.getSeconds()}`}</Text>
                             </View>
                         </View>
                         <View style={{...styles.col_2, width: col2, zIndex: 20}}>

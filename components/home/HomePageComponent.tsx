@@ -42,10 +42,10 @@ class HomePageComponent extends React.Component< MyProps, MyStates > {
                             <Text style={{...styles.iconLabel, paddingRight: 8}}>Thực hiện y lệnh</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.iconGroup} onPress={()=> this.props.navigation.navigate( 'banGiaoChiDinhPageNavigation' ) }>
+                        {/* <TouchableOpacity style={styles.iconGroup} onPress={()=> this.props.navigation.navigate( 'banGiaoChiDinhPageNavigation' ) }>
                             <IconMaterial name="folder-account" size={100} color={constColor.iconColor}/>
                             <Text style={{...styles.iconLabel, paddingRight: 0}}>Bàn giao chỉ định</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
 
                         <TouchableOpacity style={styles.iconGroup} onPress={()=> this.props.navigation.navigate( 'canLamSanPageNavigation' ) }>
                             <Icon name="list-alt" size={100} color={constColor.iconColor}/>
@@ -67,6 +67,10 @@ class HomePageComponent extends React.Component< MyProps, MyStates > {
                             <Text style={{...styles.iconLabel, paddingRight: 0}}>Đăng xuất</Text>
                         </TouchableOpacity>
 
+                        <TouchableOpacity style={styles.iconGroup} onPress={()=> null }>
+                            {/* <IconMaterial name="folder-account" size={100} color={constColor.iconColor}/>
+                            <Text style={{...styles.iconLabel, paddingRight: 0}}>Bàn giao chỉ định</Text> */}
+                        </TouchableOpacity>
                     </View>
                 </ScrollView>
             </SafeAreaView>

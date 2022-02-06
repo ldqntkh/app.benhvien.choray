@@ -15,7 +15,8 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 interface MyProps {
     navigation : any,
     SettingReducer : any,
-    UserReducer : any
+    UserReducer : any,
+    resetCamera: any
 }
 interface MyState {
     index: number,

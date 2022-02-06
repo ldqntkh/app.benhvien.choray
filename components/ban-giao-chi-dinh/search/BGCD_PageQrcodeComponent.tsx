@@ -1,7 +1,7 @@
 import React from 'react';
 import {
     SafeAreaView, View, Platform,
-    Alert
+    Alert, TouchableOpacity, Text
 } from 'react-native';
 
 import { BarCodeScanner } from 'expo-barcode-scanner';
@@ -86,10 +86,10 @@ class THYL_PageQrCodeComponent extends React.Component< MyProps, MyStates > {
                 text: 'Xác nhận',
                 onPress: () =>{
                     this.props.navigation.navigate('chidinhDetailPageNavigation', {soNhapVien: barcodes});
-                    this.setState({
-                        scanned: false,
-                        barcodes: ''
-                    })
+                    // this.setState({
+                    //     scanned: false,
+                    //     barcodes: ''
+                    // })
                 },
               },
               {
@@ -110,12 +110,19 @@ class THYL_PageQrCodeComponent extends React.Component< MyProps, MyStates > {
 
     render() {
         let {
-            hasCameraPermission
+            hasCameraPermission, scanned
         } = this.state;
         return(
             <SafeAreaView style={styles.container}>
                 <View style={styles.barcodeControl}>
                     {
+                        scanned ?
+                        <View style={styles.checkAgain}>
+                            <TouchableOpacity style={styles.btnAgain} onPress={()=> this.setState({ scanned: false, barcodes: '' })}>
+                                <Text style={styles.btnLabelAgain}>Quét mã</Text>
+                            </TouchableOpacity>
+                        </View> 
+                        :
                         hasCameraPermission && 
                         <>
                             <BarCodeScanner

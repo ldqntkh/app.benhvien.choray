@@ -61,6 +61,25 @@ const styles = StyleSheet.create({
         backgroundColor: 'black',
         opacity: 0.7
     },
+
+    checkAgain: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: 200
+    },
+    btnAgain: {
+        marginTop: 20,
+        padding: 10,
+        paddingLeft: 30,
+        paddingRight: 30,
+        borderRadius: 4,
+        backgroundColor: "#42c7dd"
+    },
+    btnLabelAgain: {
+        color: 'white'
+    },
 });
 
 export default styles;
