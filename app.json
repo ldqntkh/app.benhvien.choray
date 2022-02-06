@@ -1,15 +1,15 @@
 {
   "expo": {
-    "name": "Theo dõi bệnh án",
-    "slug": "APP_BV_DHYD",
-    "version": "1.0.0",
+    "name": "Chợ Rẫy - Cận lâm sàng nội trú",
+    "slug": "APP_BV_CR",
+    "version": "1.1.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "appbvcr",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
+      "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
     "updates": {
@@ -19,7 +19,7 @@
       "**/*"
     ],
     "ios": {
-      "bundleIdentifier": "com.app.dhyd",
+      "bundleIdentifier": "com.app.bvcr",
       "infoPlist":{  
         "NSFaceIDUsageDescription": "Ứng dụng cần quyền truy cập FaceID để thực hiện đăng nhập. Vui lòng cho phép sử dụng tính năng này!",
         "NSCameraUsageDescription":"Ứng dụng cần quyền truy cập máy ảnh để quét Barcode bệnh án. Vui lòng cho phép sử dụng tính năng này!",
@@ -28,8 +28,8 @@
       "supportsTablet": true
     },
     "android": {
-      "permissions":["CAMERA"],
-      "package": "com.app.bvdhyd",
+      "permissions":["CAMERA", "USE_FINGERPRINT"],
+      "package": "com.app.bvcr",
       "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
